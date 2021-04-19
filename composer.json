@@ -2,6 +2,7 @@
     "name": "replicated/psr15",
     "description": "Working up PSR-15 implementations with Behat",
     "require-dev": {
-        "behat/behat": "^3.8"
+        "behat/behat": "^3.8",
+        "phpunit/phpunit": "^9.5"
     }
 }
