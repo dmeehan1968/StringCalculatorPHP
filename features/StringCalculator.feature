@@ -78,3 +78,12 @@ Feature: A String Calculator based on Roy Osherove's Kata
       | 1000,1001       | 1000    |
       | 1,2,3,1000      | 1006    |
 
+  Scenario Outline: Delimiters can be any length
+    Given there is a string calculator
+    When I add "<string>"
+    Then the result is <result>
+
+    Examples:
+      | string             | result  |
+      | //[***]\n1***2***3 | 6       |
+
