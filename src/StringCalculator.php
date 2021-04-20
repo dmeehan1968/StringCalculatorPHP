@@ -16,14 +16,22 @@ class StringCalculator implements StringCalculatorInterface
         if (strlen($value) == 0) {
             throw new Exception('Invalid input string');
         }
-        if (intval($value) < 0) {
-            throw new Exception('Negatives not allowed');
-        }
         return true;
     }
 
+    private function negativeFilter(string $value): bool {
+        return (intval($value) < 0);
+    }
+
+    /**
+     * @throws Exception
+     */
     private function sanitizeValues(array $values): array {
         $values = array_map('trim', $values);
+        $negatives = array_filter($values, [$this, 'negativeFilter']);
+        if (count($negatives) > 0) {
+            throw new Exception('Negatives not allowed, got ' . implode(', ', $negatives));
+        }
         return array_filter($values, [$this, 'validateValue']);
     }
 
