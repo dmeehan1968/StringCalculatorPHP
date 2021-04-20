@@ -37,6 +37,12 @@ class StringCalculator implements StringCalculatorInterface
         $numbers = new Chain($numbers ?? []);
         $numbers
             ->map(fn($v) => trim($v))
+            ->filter(function ($v) {
+                if (strlen($v) < 1) {
+                    throw new Exception('Invalid input string');
+                }
+                return true;
+            })
             ->map(fn($v) => intval($v))
             ->filter(fn($v) => $v <= 1000);
 
