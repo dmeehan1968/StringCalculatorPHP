@@ -40,7 +40,7 @@ Feature: A String Calculator based on Roy Osherove's Kata
   Scenario Outline: Consecutive delimiters are invalid
     Given there is a string calculator
     When I add "<string>"
-    Then there is an exception "Invalid input string"
+    Then there is an exception "Multiple delimiters encountered"
 
     Examples:
       | string        |
@@ -93,6 +93,32 @@ Feature: A String Calculator based on Roy Osherove's Kata
     Then the result is <result>
 
     Examples:
-      | string             | result  |
-      | //[*][%]\n1*2%3    | 6       |
+      | string               | result  |
+      | //[*][%]\n1*2%3      | 6       |
+      | //[**][%%]\n1**2%%3  | 6       |
+
+  Scenario Outline: Malformed inputs throw exceptions
+    Given there is a string calculator
+    When I add "<string>"
+    Then there is an exception "<exception>"
+
+    Examples:
+      | string             | reason                            | exception                  |
+      | 1@2                | Invalid separator                 | Unexpected delimiter found       |
+      | 1@                 | Missing number after sep          | Unexpected delimiter found       |
+      | @1                 | Missing number before sep         | Invalid characters where number expected |
+      | 1,,                | Multiple concurrent delimiters    | Multiple delimiters encountered |
+      | //;1;2             | Missing newline after config      | Missing newline after delimiters |
+      | //[**\n1*2         | Missing multibyte closing bracket | Missing closing bracket on multibyte delimiter |
+      | //[**]1*2          | Missing newline after multibyte delimiter | Missing newline after delimiters |
+      | //[**]\n1*2        | Unexpected delimiter | Unexpected delimiter found |
+
+  Scenario Outline: Malformed inputs that are considered good
+    Given there is a string calculator
+    When I add "<string>"
+    Then the result is <result>
+
+    Examples:
+      | string             | reason                            | result         |
+      | //**]\n1*2         | Missing multibyte opening bracket | 3              |
 

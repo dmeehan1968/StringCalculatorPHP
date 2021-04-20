@@ -24,21 +24,19 @@ class StringCalculator implements StringCalculatorInterface
             while ($scanner->scanString('[')) {
                 if (!$scanner->scanUpToString(']', $this->multiDelimiter[count($this->multiDelimiter)])
                     || strlen($this->multiDelimiter[count($this->multiDelimiter)-1]) < 1) {
-                    throw new Exception("Invalid input string");
+                    throw new Exception("Missing closing bracket on multibyte delimiter");
                 }
-                if (!$scanner->scanString("]")) {
-                    throw new Exception("Invalid input string");
-                }
+                $scanner->scanString("]");
             }
 
             if (count($this->multiDelimiter) == 0) {
                 if (!$scanner->scanUpToString("\n", $this->delimiters) || strlen($this->delimiters) < 1) {
-                    throw new Exception("Invalid input string");
+                    throw new Exception("Missing newline after delimiters");
                 }
             }
 
             if (!$scanner->scanString("\n")) {
-                throw new Exception("Invalid input string");
+                throw new Exception("Missing newline after delimiters");
             }
 
         }
@@ -48,7 +46,7 @@ class StringCalculator implements StringCalculatorInterface
             if ($scanner->scanCharactersFromSet('-0123456789', $number)) {
                 $numbers[] = $number;
             } else {
-                throw new Exception("Invalid input string");
+                throw new Exception("Invalid characters where number expected");
             }
             if (!$scanner->atEnd()) {
                 if (count($this->multiDelimiter) > 0) {
@@ -60,15 +58,15 @@ class StringCalculator implements StringCalculatorInterface
                         }
                     }
                     if (!$found) {
-                        throw new Exception("Invalid input string");
+                        throw new Exception("Unexpected delimiter found");
                     }
                 } else {
                     $delimiter = null;
                     if (!$scanner->scanCharactersFromSet($this->delimiters, $delimiter)) {
-                        throw new Exception("Invalid input string");
+                        throw new Exception("Unexpected delimiter found");
                     }
                     if (strlen($delimiter) > 1) {
-                        throw new Exception("Invalid input string");
+                        throw new Exception("Multiple delimiters encountered");
                     }
                 }
             }
@@ -77,12 +75,6 @@ class StringCalculator implements StringCalculatorInterface
         $numbers = new Chain($numbers ?? []);
         $numbers
             ->map(fn($v) => trim($v))
-            ->filter(function ($v) {
-                if (strlen($v) < 1) {
-                    throw new Exception('Invalid input string');
-                }
-                return true;
-            })
             ->map(fn($v) => intval($v))
             ->filter(fn($v) => $v <= 1000);
 
