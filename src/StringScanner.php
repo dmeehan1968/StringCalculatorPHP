@@ -43,6 +43,7 @@ class StringScanner
 
     public function scanString(string $string, string& $dest = null): bool {
         if (strpos($this->string, $string) === 0) {
+            $dest = $string;
             $this->string = substr($this->string, strlen($string));
             return true;
         }
