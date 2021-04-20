@@ -67,3 +67,14 @@ Feature: A String Calculator based on Roy Osherove's Kata
       | 1,-2            | -2        |
       | 1,2,3,4,-5,6,-7 | -5, -7    |
 
+  Scenario Outline: Numbers over 1000 should be ignored
+    Given there is a string calculator
+    When I add "<string>"
+    Then the result is <result>
+
+    Examples:
+      | string          | result  |
+      | 2,1001          | 2       |
+      | 1000,1001       | 1000    |
+      | 1,2,3,1000      | 1006    |
+

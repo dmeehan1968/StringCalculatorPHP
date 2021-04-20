@@ -23,6 +23,10 @@ class StringCalculator implements StringCalculatorInterface
         return (intval($value) < 0);
     }
 
+    private function valueFilter(string $value): bool {
+        return (intval($value) <= 1000);
+    }
+
     /**
      * @throws Exception
      */
@@ -32,6 +36,7 @@ class StringCalculator implements StringCalculatorInterface
         if (count($negatives) > 0) {
             throw new Exception('Negatives not allowed, got ' . implode(', ', $negatives));
         }
+        $values = array_filter($values, [$this, 'valueFilter']);
         return array_filter($values, [$this, 'validateValue']);
     }
 
