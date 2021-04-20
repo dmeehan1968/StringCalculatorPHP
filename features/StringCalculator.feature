@@ -27,3 +27,23 @@ Feature: A String Calculator based on Roy Osherove's Kata
       | 1,2,3,4,5,6,7,8,9   | 45      |
       | 10,20,30            | 60      |
 
+  Scenario Outline: It can handle newline or comma delimiters
+    Given there is a string calculator
+    When I add "<string>"
+    Then the result is <result>
+
+    Examples:
+      | string              | result  |
+      | 1\n2,3              | 6       |
+      | 1\n2\n3             | 6       |
+
+  Scenario Outline: Consecutive delimiters are invalid
+    Given there is a string calculator
+    When I add "<string>"
+    Then there is an exception "Invalid input string"
+
+    Examples:
+      | string        |
+      | 1,\n          |
+      | 2,\n2         |
+

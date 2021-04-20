@@ -6,11 +6,12 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use PHPUnit\Framework\Assert;
 use StringCalculator\StringCalculator;
+use Exception;
 
 class StringCalculatorContext implements Context
 {
     private StringCalculator $calc;
-    private int $result;
+    private $result;
 
     /**
      * @Given /^there is a string calculator$/
@@ -33,7 +34,11 @@ class StringCalculatorContext implements Context
      */
     public function iAdd($string)
     {
-        $this->result = $this->calc->add($string);
+        try {
+            $this->result = $this->calc->add($string);
+        } catch (Exception $e) {
+            $this->result = $e;
+        }
     }
 
     /**
@@ -42,6 +47,15 @@ class StringCalculatorContext implements Context
     public function theResultIs($result)
     {
         Assert::assertSame($this->result, intval($result));
+    }
+
+    /**
+     * @Then /^there is an exception "([^"]*)"$/
+     */
+    public function thereIsAnException($message)
+    {
+        Assert::assertInstanceOf('Exception', $this->result);
+        Assert::assertSame($this->result->getMessage(), $message);
     }
 
 }
