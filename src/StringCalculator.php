@@ -9,6 +9,7 @@ use Exception;
 class StringCalculator implements StringCalculatorInterface
 {
     private string $delimiters = "\n,";
+    private ?string $multiDelimiter;
 
     /**
      * @throws Exception
@@ -23,17 +24,52 @@ class StringCalculator implements StringCalculatorInterface
     public function add(string $string): int
     {
         $string = stripcslashes($string);
-        preg_match('/^(?<config>\/\/(?<delimiter>[^\n]+)\n)?(?<string>.*)$/s', $string, $matches);
+        $numbers = [];
+        $scanner = new StringScanner($string);
 
-        if (strlen($matches['config']) > 0) {
-            $this->delimiters = $matches['delimiter'];
+        if ($scanner->scanString('//')) {
+            if ($scanner->scanString('[')) {
+                $this->multiDelimiter = null;
+                if (!$scanner->scanUpToString(']', $this->multiDelimiter)) {
+                    throw new Exception("Invalid input string");
+                }
+                if (!$scanner->scanString("]\n")) {
+                    throw new Exception("Invalid input string");
+                }
+            } else {
+                if (!$scanner->scanUpToString("\n", $this->delimiters)) {
+                    throw new Exception("Invalid input string");
+                }
+                if (!$scanner->scanString("\n")) {
+                    throw new Exception("Invalid input string");
+                }
+            }
         }
-        $string = $matches['string'] ?? $string;
 
-        if (strlen($string) == 0) {
-            return 0;
+        while (!$scanner->atEnd()) {
+            $number = null;
+            if ($scanner->scanCharactersFromSet('-0123456789', $number)) {
+                $numbers[] = $number;
+            } else {
+                throw new Exception("Invalid input string");
+            }
+            if (!$scanner->atEnd()) {
+                if (isset($this->multiDelimiter)) {
+                    if (!$scanner->scanString($this->multiDelimiter)) {
+                        throw new Exception("Invalid input string");
+                    }
+                } else {
+                    $delimiter = null;
+                    if (!$scanner->scanCharactersFromSet($this->delimiters, $delimiter)) {
+                        throw new Exception("Invalid input string");
+                    }
+                    if (strlen($delimiter) > 1) {
+                        throw new Exception("Invalid input string");
+                    }
+                }
+            }
         }
-        $numbers = preg_split("/[{$this->delimiters}]/", $string);
+
         $numbers = new Chain($numbers ?? []);
         $numbers
             ->map(fn($v) => trim($v))
