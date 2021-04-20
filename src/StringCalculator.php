@@ -16,6 +16,9 @@ class StringCalculator implements StringCalculatorInterface
         if (strlen($value) == 0) {
             throw new Exception('Invalid input string');
         }
+        if (intval($value) < 0) {
+            throw new Exception('Negatives not allowed');
+        }
         return true;
     }
 

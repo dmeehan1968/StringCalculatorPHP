@@ -56,3 +56,14 @@ Feature: A String Calculator based on Roy Osherove's Kata
       | string        | result      |
       | //;\n1;2      | 3           |
 
+  Scenario Outline: Negatives will throw an exception
+    Given there is a string calculator
+    When I add "<string>"
+    Then there is an exception "Negatives not allowed"
+
+    Examples:
+      | string          |
+      | -1              |
+      | 1,-2            |
+      | 1,2,3,4,5,6,-7  |
+
