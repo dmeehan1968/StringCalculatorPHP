@@ -14,13 +14,6 @@ class StringCalculator implements StringCalculatorInterface
     /**
      * @throws Exception
      */
-    private function validateValue(string $value): bool {
-        if (strlen($value) == 0) {
-            throw new Exception('Invalid input string');
-        }
-        return true;
-    }
-
     public function add(string $string): int
     {
         $string = stripcslashes($string);
