@@ -1,4 +1,5 @@
 Feature: A String Calculator based on Roy Osherove's Kata
+  https://osherove.com/tdd-kata-1
 
   Scenario: The calculator conforms to the interface
     Given there is a string calculator
@@ -103,15 +104,15 @@ Feature: A String Calculator based on Roy Osherove's Kata
     Then there is an exception "<exception>"
 
     Examples:
-      | string             | reason                            | exception                  |
-      | 1@2                | Invalid separator                 | Unexpected delimiter found       |
-      | 1@                 | Missing number after sep          | Unexpected delimiter found       |
-      | @1                 | Missing number before sep         | Invalid characters where number expected |
-      | 1,,                | Multiple concurrent delimiters    | Multiple delimiters encountered |
-      | //;1;2             | Missing newline after config      | Missing newline after delimiters |
-      | //[**\n1*2         | Missing multibyte closing bracket | Missing closing bracket on multibyte delimiter |
-      | //[**]1*2          | Missing newline after multibyte delimiter | Missing newline after delimiters |
-      | //[**]\n1*2        | Unexpected delimiter | Unexpected delimiter found |
+      | string             | reason                            | exception                                       |
+      | 1@2                | Invalid separator                 | Unexpected delimiter found                      |
+      | 1@                 | Missing number after sep          | Unexpected delimiter found                      |
+      | @1                 | Missing number before sep         | Invalid characters where number expected        |
+      | 1,,                | Multiple concurrent delimiters    | Multiple delimiters encountered                 |
+      | //;1;2             | Missing newline after config      | Missing newline after delimiters                |
+      | //[**\n1*2         | Missing multibyte closing bracket | Missing closing bracket on multibyte delimiter  |
+      | //[**]1*2          | Missing newline after multibyte delimiter | Missing newline after delimiters        |
+      | //[**]\n1*2        | Unexpected delimiter              | Unexpected delimiter found                      |
 
   Scenario Outline: Malformed inputs that are considered good
     Given there is a string calculator
