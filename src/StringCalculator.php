@@ -3,6 +3,7 @@
 
 namespace StringCalculator;
 
+use Cocur\Chain\Chain;
 use Exception;
 
 class StringCalculator implements StringCalculatorInterface
@@ -19,27 +20,6 @@ class StringCalculator implements StringCalculatorInterface
         return true;
     }
 
-    private function negativeFilter(string $value): bool {
-        return (intval($value) < 0);
-    }
-
-    private function valueFilter(string $value): bool {
-        return (intval($value) <= 1000);
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function sanitizeValues(array $values): array {
-        $values = array_map('trim', $values);
-        $negatives = array_filter($values, [$this, 'negativeFilter']);
-        if (count($negatives) > 0) {
-            throw new Exception('Negatives not allowed, got ' . implode(', ', $negatives));
-        }
-        $values = array_filter($values, [$this, 'valueFilter']);
-        return array_filter($values, [$this, 'validateValue']);
-    }
-
     public function add(string $string): int
     {
         $string = stripcslashes($string);
@@ -54,10 +34,18 @@ class StringCalculator implements StringCalculatorInterface
             return 0;
         }
         $numbers = preg_split("/[{$this->delimiters}]/", $string);
-        $numbers = $numbers ? $this->sanitizeValues($numbers) : false;
-        return ($numbers != false) ? array_reduce($numbers, function ($result, $number) {
-            return $result + intval($number);
-        }, 0) : 0;
+        $numbers = new Chain($numbers ?? []);
+        $numbers
+            ->map(fn($v) => trim($v))
+            ->map(fn($v) => intval($v))
+            ->filter(fn($v) => $v <= 1000);
+
+        $negatives = (clone $numbers)->filter(fn($v) => $v < 0);
+        if ($negatives->count() > 0) {
+            throw new Exception('Negatives not allowed, got ' . $negatives->join(', '));
+        }
+
+        return $numbers->sum();
 
     }
 }
