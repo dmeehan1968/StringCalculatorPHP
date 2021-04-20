@@ -47,3 +47,12 @@ Feature: A String Calculator based on Roy Osherove's Kata
       | 1,\n          |
       | 2,\n2         |
 
+  Scenario Outline: A new default delimiter can be specified
+    Given there is a string calculator
+    When I add "<string>"
+    Then the result is <result>
+
+    Examples:
+      | string        | result      |
+      | //;\n1;2      | 3           |
+

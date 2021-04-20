@@ -11,6 +11,7 @@ use Exception;
 class StringCalculatorContext implements Context
 {
     private StringCalculator $calc;
+    /** @var mixed */
     private $result;
 
     /**
