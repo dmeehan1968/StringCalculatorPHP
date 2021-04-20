@@ -9,7 +9,7 @@ use Exception;
 class StringCalculator implements StringCalculatorInterface
 {
     private string $delimiters = "\n,";
-    private ?string $multiDelimiter;
+    private array $multiDelimiter = [];
 
     /**
      * @throws Exception
@@ -21,22 +21,26 @@ class StringCalculator implements StringCalculatorInterface
         $scanner = new StringScanner($string);
 
         if ($scanner->scanString('//')) {
-            if ($scanner->scanString('[')) {
-                $this->multiDelimiter = null;
-                if (!$scanner->scanUpToString(']', $this->multiDelimiter)) {
+            while ($scanner->scanString('[')) {
+                if (!$scanner->scanUpToString(']', $this->multiDelimiter[count($this->multiDelimiter)])
+                    || strlen($this->multiDelimiter[count($this->multiDelimiter)-1]) < 1) {
                     throw new Exception("Invalid input string");
                 }
-                if (!$scanner->scanString("]\n")) {
-                    throw new Exception("Invalid input string");
-                }
-            } else {
-                if (!$scanner->scanUpToString("\n", $this->delimiters)) {
-                    throw new Exception("Invalid input string");
-                }
-                if (!$scanner->scanString("\n")) {
+                if (!$scanner->scanString("]")) {
                     throw new Exception("Invalid input string");
                 }
             }
+
+            if (count($this->multiDelimiter) == 0) {
+                if (!$scanner->scanUpToString("\n", $this->delimiters) || strlen($this->delimiters) < 1) {
+                    throw new Exception("Invalid input string");
+                }
+            }
+
+            if (!$scanner->scanString("\n")) {
+                throw new Exception("Invalid input string");
+            }
+
         }
 
         while (!$scanner->atEnd()) {
@@ -47,8 +51,15 @@ class StringCalculator implements StringCalculatorInterface
                 throw new Exception("Invalid input string");
             }
             if (!$scanner->atEnd()) {
-                if (isset($this->multiDelimiter)) {
-                    if (!$scanner->scanString($this->multiDelimiter)) {
+                if (count($this->multiDelimiter) > 0) {
+                    $found = false;
+                    foreach ($this->multiDelimiter as $delimiter) {
+                        if ($scanner->scanString($delimiter)) {
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
                         throw new Exception("Invalid input string");
                     }
                 } else {
