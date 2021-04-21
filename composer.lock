@@ -4,46 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e55689841f1235a695a5d3cd0387d592",
-    "packages": [
-        {
-            "name": "cocur/chain",
-            "version": "v0.9.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cocur/chain.git",
-                "reference": "4d0a6e4fdee3b4aa53f0937f82e98d43320659a9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cocur/chain/zipball/4d0a6e4fdee3b4aa53f0937f82e98d43320659a9",
-                "reference": "4d0a6e4fdee3b4aa53f0937f82e98d43320659a9",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~8.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cocur\\Chain\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Consistent and chainable array manipulation",
-            "support": {
-                "issues": "https://github.com/cocur/chain/issues",
-                "source": "https://github.com/cocur/chain/tree/v0.9.0"
-            },
-            "time": "2020-07-19T15:36:22+00:00"
-        }
-    ],
+    "content-hash": "faf1d9e4bf00d9f7e8bf10db70ab61f8",
+    "packages": [],
     "packages-dev": [
         {
             "name": "behat/behat",

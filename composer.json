@@ -10,8 +10,5 @@
             "StringCalculator\\": "src",
             "Context\\": "tests"
         }
-    },
-    "require": {
-        "cocur/chain": "^0.9.0"
     }
 }

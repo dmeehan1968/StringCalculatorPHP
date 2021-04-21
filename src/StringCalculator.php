@@ -3,8 +3,18 @@
 
 namespace StringCalculator;
 
-use Cocur\Chain\Chain;
 use Exception;
+
+class ThrowExceptionIfAnyNegatives {
+    public function __invoke(MutableArrayInterface $array)
+    {
+        $array
+            ->filter(fn($v) => $v < 0)
+            ->hasAtLeast(1, function (MutableArrayInterface $array) {
+                throw new Exception('Negatives not allowed, got ' . $array->join(', '));
+            });
+    }
+}
 
 class StringCalculator implements StringCalculatorInterface
 {
@@ -17,7 +27,7 @@ class StringCalculator implements StringCalculatorInterface
     public function add(string $string): int
     {
         $string = stripcslashes($string);
-        $numbers = [];
+        $numbers = new FluentArray();
         $scanner = new StringScanner($string);
 
         if ($scanner->scanString('//')) {
@@ -72,18 +82,12 @@ class StringCalculator implements StringCalculatorInterface
             }
         }
 
-        $numbers = new Chain($numbers ?? []);
-        $numbers
+        return $numbers
             ->map(fn($v) => trim($v))
             ->map(fn($v) => intval($v))
-            ->filter(fn($v) => $v <= 1000);
-
-        $negatives = (clone $numbers)->filter(fn($v) => $v < 0);
-        if ($negatives->count() > 0) {
-            throw new Exception('Negatives not allowed, got ' . $negatives->join(', '));
-        }
-
-        return $numbers->sum();
+            ->withMutableCopy(new ThrowExceptionIfAnyNegatives())
+            ->filter(fn($v) => $v <= 1000)
+            ->sum();
 
     }
 }
