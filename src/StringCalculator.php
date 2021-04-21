@@ -1,20 +1,6 @@
 <?php
 
-
 namespace StringCalculator;
-
-use Exception;
-
-class ThrowExceptionIfAnyNegatives {
-    public function __invoke(MutableArrayInterface $array)
-    {
-        $array
-            ->filter(fn($v) => $v < 0)
-            ->hasAtLeast(1, function (MutableArrayInterface $array) {
-                throw new Exception('Negatives not allowed, got ' . $array->join(', '));
-            });
-    }
-}
 
 class StringCalculator implements StringCalculatorInterface
 {
@@ -27,40 +13,67 @@ class StringCalculator implements StringCalculatorInterface
     }
 
     /**
-     * @throws Exception
+     * @throws StringCalculatorException
      */
     public function add(string $string): int
     {
-        $numbers = new FluentArray();
         $scanner = new StringScanner($string);
 
+        $this->getConfig($scanner);
+
+        $numbers = $this->getNumbers($scanner);
+
+        return (new FluentArray($numbers))
+            ->map(fn($v) => trim($v))
+            ->map(fn($v) => intval($v))
+            ->withMutableCopy(new ThrowExceptionIfAnyNegatives())
+            ->filter(fn($v) => $v <= 1000)
+            ->sum();
+
+    }
+
+    /**
+     * @param StringScanner $scanner
+     * @throws StringCalculatorException
+     */
+    private function getConfig(StringScanner $scanner): void
+    {
         if ($scanner->scanString('//')) {
             while ($scanner->scanString('[')) {
                 if (!$scanner->scanUpToString(']', $this->multiDelimiter->append()->last())
                     || strlen($this->multiDelimiter->last()) < 1) {
-                    throw new Exception("Missing closing bracket on multibyte delimiter");
+                    throw new StringCalculatorException("Missing closing bracket on multibyte delimiter");
                 }
                 $scanner->scanString("]");
             }
 
             if ($this->multiDelimiter->count() == 0) {
                 if (!$scanner->scanUpToString("\n", $this->delimiters) || strlen($this->delimiters) < 1) {
-                    throw new Exception("Missing newline after delimiters");
+                    throw new StringCalculatorException("Missing newline after delimiters");
                 }
             }
 
             if (!$scanner->scanString("\n")) {
-                throw new Exception("Missing newline after delimiters");
+                throw new StringCalculatorException("Missing newline after delimiters");
             }
-
         }
+    }
+
+    /**
+     * @param StringScanner $scanner
+     * @return array
+     * @throws StringCalculatorException
+     */
+    private function getNumbers(StringScanner $scanner): array
+    {
+        $numbers = [];
 
         while (!$scanner->atEnd()) {
             $number = null;
             if ($scanner->scanCharactersFromSet('-0123456789', $number)) {
                 $numbers[] = $number;
             } else {
-                throw new Exception("Invalid characters where number expected");
+                throw new StringCalculatorException("Invalid characters where number expected");
             }
             if (!$scanner->atEnd()) {
                 if ($this->multiDelimiter->count()) {
@@ -70,26 +83,19 @@ class StringCalculator implements StringCalculatorInterface
                         return !$found;
                     });
                     if (!$found) {
-                        throw new Exception("Unexpected delimiter found");
+                        throw new StringCalculatorException("Unexpected delimiter found");
                     }
                 } else {
                     $delimiter = null;
                     if (!$scanner->scanCharactersFromSet($this->delimiters, $delimiter)) {
-                        throw new Exception("Unexpected delimiter found");
+                        throw new StringCalculatorException("Unexpected delimiter found");
                     }
                     if (strlen($delimiter) > 1) {
-                        throw new Exception("Multiple delimiters encountered");
+                        throw new StringCalculatorException("Multiple delimiters encountered");
                     }
                 }
             }
         }
-
-        return $numbers
-            ->map(fn($v) => trim($v))
-            ->map(fn($v) => intval($v))
-            ->withMutableCopy(new ThrowExceptionIfAnyNegatives())
-            ->filter(fn($v) => $v <= 1000)
-            ->sum();
-
+        return $numbers;
     }
 }

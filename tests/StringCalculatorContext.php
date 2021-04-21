@@ -3,10 +3,9 @@
 namespace Context;
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Tester\Exception\PendingException;
 use PHPUnit\Framework\Assert;
 use StringCalculator\StringCalculator;
-use Exception;
+use StringCalculator\StringCalculatorException;
 
 class StringCalculatorContext implements Context
 {
@@ -37,7 +36,7 @@ class StringCalculatorContext implements Context
     {
         try {
             $this->result = $this->calc->add(stripcslashes($string));
-        } catch (Exception $e) {
+        } catch (StringCalculatorException $e) {
             $this->result = $e;
         }
     }
@@ -55,7 +54,7 @@ class StringCalculatorContext implements Context
      */
     public function thereIsAnException($message)
     {
-        Assert::assertInstanceOf('Exception', $this->result);
+        Assert::assertInstanceOf(StringCalculatorException::class, $this->result);
         Assert::assertSame($this->result->getMessage(), $message);
     }
 
