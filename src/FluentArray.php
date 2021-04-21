@@ -7,11 +7,19 @@ use ArrayIterator;
 use Countable;
 use IteratorAggregate;
 
-interface MutableArrayInterface {
+interface MutableArrayInterface
+{
     public function map(callable $callback): self;
+
     public function filter(callable $callback): self;
+
     public function withMutableCopy(callable $callback): self;
+
     public function hasAtLeast(int $count, callable $callback): self;
+
+    public function append($item = null): self;
+
+    public function each(callable $callback): self;
 }
 
 class FluentArray implements MutableArrayInterface, ArrayAccess, IteratorAggregate, Countable
@@ -66,7 +74,7 @@ class FluentArray implements MutableArrayInterface, ArrayAccess, IteratorAggrega
 
     public function getIterator()
     {
-        new ArrayIterator($this);
+        return new ArrayIterator($this->array);
     }
 
     //==================================================================
@@ -100,6 +108,22 @@ class FluentArray implements MutableArrayInterface, ArrayAccess, IteratorAggrega
         return $this;
     }
 
+    public function append($item = null): self
+    {
+        $this->array[] = null;
+        return $this;
+    }
+
+    public function each(callable $callback): self
+    {
+        foreach ($this->array as $item) {
+            if (!$callback($item)) {
+                break;
+            }
+        }
+        return $this;
+    }
+
     //==================================================================
     // Utility
     //==================================================================
@@ -120,6 +144,10 @@ class FluentArray implements MutableArrayInterface, ArrayAccess, IteratorAggrega
     public function join(string $separator): string
     {
         return implode($separator, $this->array);
+    }
+
+    public function &last() {
+        return $this->array[$this->count()-1];
     }
 
 }

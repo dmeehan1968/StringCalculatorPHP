@@ -19,7 +19,12 @@ class ThrowExceptionIfAnyNegatives {
 class StringCalculator implements StringCalculatorInterface
 {
     private string $delimiters = "\n,";
-    private array $multiDelimiter = [];
+    private iterable $multiDelimiter;
+
+    public function __construct()
+    {
+        $this->multiDelimiter = new FluentArray();
+    }
 
     /**
      * @throws Exception
@@ -32,14 +37,14 @@ class StringCalculator implements StringCalculatorInterface
 
         if ($scanner->scanString('//')) {
             while ($scanner->scanString('[')) {
-                if (!$scanner->scanUpToString(']', $this->multiDelimiter[count($this->multiDelimiter)])
-                    || strlen($this->multiDelimiter[count($this->multiDelimiter)-1]) < 1) {
+                if (!$scanner->scanUpToString(']', $this->multiDelimiter->append()->last())
+                    || strlen($this->multiDelimiter->last()) < 1) {
                     throw new Exception("Missing closing bracket on multibyte delimiter");
                 }
                 $scanner->scanString("]");
             }
 
-            if (count($this->multiDelimiter) == 0) {
+            if ($this->multiDelimiter->count() == 0) {
                 if (!$scanner->scanUpToString("\n", $this->delimiters) || strlen($this->delimiters) < 1) {
                     throw new Exception("Missing newline after delimiters");
                 }
@@ -59,14 +64,12 @@ class StringCalculator implements StringCalculatorInterface
                 throw new Exception("Invalid characters where number expected");
             }
             if (!$scanner->atEnd()) {
-                if (count($this->multiDelimiter) > 0) {
+                if ($this->multiDelimiter->count()) {
                     $found = false;
-                    foreach ($this->multiDelimiter as $delimiter) {
-                        if ($scanner->scanString($delimiter)) {
-                            $found = true;
-                            break;
-                        }
-                    }
+                    $this->multiDelimiter->each(function ($v) use ($scanner, &$found) {
+                        $found = $scanner->scanString($v);
+                        return !$found;
+                    });
                     if (!$found) {
                         throw new Exception("Unexpected delimiter found");
                     }
