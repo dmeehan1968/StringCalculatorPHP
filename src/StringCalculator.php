@@ -31,7 +31,6 @@ class StringCalculator implements StringCalculatorInterface
      */
     public function add(string $string): int
     {
-        $string = stripcslashes($string);
         $numbers = new FluentArray();
         $scanner = new StringScanner($string);
 

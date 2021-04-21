@@ -36,7 +36,7 @@ class StringCalculatorContext implements Context
     public function iAdd($string)
     {
         try {
-            $this->result = $this->calc->add($string);
+            $this->result = $this->calc->add(stripcslashes($string));
         } catch (Exception $e) {
             $this->result = $e;
         }
