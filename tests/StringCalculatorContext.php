@@ -14,25 +14,17 @@ class StringCalculatorContext implements Context
     private $result;
 
     /**
-     * @Given /^there is a string calculator$/
+     * @Given /^a calculator$/
      */
-    public function thereIsAStringCalculator()
+    public function aCalculator()
     {
         $this->calc = new StringCalculator();
     }
 
     /**
-     * @Then /^it implements the "([^"]*)" interface$/
+     * @When /^the input is "([^"]*)"$/
      */
-    public function itImplementsTheInterface($interface)
-    {
-        Assert::assertInstanceOf($interface, $this->calc);
-    }
-
-    /**
-     * @When /^I add "([^"]*)"$/
-     */
-    public function iAdd($string)
+    public function theInputIs($string)
     {
         try {
             $this->result = $this->calc->add(stripcslashes($string));
@@ -46,7 +38,7 @@ class StringCalculatorContext implements Context
      */
     public function theResultIs($result)
     {
-        Assert::assertSame($this->result, intval($result));
+        Assert::assertSame(intval($result), $this->result);
     }
 
     /**
@@ -55,7 +47,7 @@ class StringCalculatorContext implements Context
     public function thereIsAnException($message)
     {
         Assert::assertInstanceOf(StringCalculatorException::class, $this->result);
-        Assert::assertSame($this->result->getMessage(), $message);
+        Assert::assertSame($message, $this->result->getMessage());
     }
 
 }
